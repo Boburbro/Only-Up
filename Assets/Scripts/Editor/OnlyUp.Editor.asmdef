@@ -1,0 +1,6 @@
+{
+    "name": "OnlyUp.Editor",
+    "rootNamespace": "OnlyUp.EditorTools",
+    "references": ["OnlyUp.Runtime", "Unity.InputSystem", "Unity.RenderPipelines.Universal.Runtime", "Unity.RenderPipelines.Core.Runtime"],
+    "includePlatforms": ["Editor"]
+}

@@ -1,0 +1,6 @@
+{
+    "name": "OnlyUp.Runtime",
+    "rootNamespace": "OnlyUp",
+    "references": ["Unity.InputSystem", "Unity.Netcode.Runtime", "Unity.Networking.Transport", "Unity.Collections", "Unity.Services.Core", "Unity.Services.Authentication", "Unity.Services.Multiplayer", "Unity.RenderPipelines.Universal.Runtime", "Unity.RenderPipelines.Core.Runtime"],
+    "autoReferenced": true
+}

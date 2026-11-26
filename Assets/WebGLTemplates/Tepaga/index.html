@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="uz">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <title>TEPAGA!</title>
+    <style>
+      html, body { margin: 0; height: 100%; overflow: hidden; background: #151a24; }
+      /* O'yin oynasi brauzer oynasini to'liq egallaydi. */
+      #unity-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: block; touch-action: none; outline: none; }
+      #loading { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; font-family: sans-serif; color: #fff; }
+      #title { font-size: 48px; font-weight: bold; color: #f28c2b; }
+      #bar { width: min(320px, 70vw); height: 10px; border-radius: 5px; background: #323a4d; overflow: hidden; }
+      #fill { width: 0; height: 100%; background: #f28c2b; }
+      #message { max-width: 80vw; text-align: center; }
+      #fullscreen { position: fixed; right: 12px; bottom: 12px; display: none; padding: 8px 12px; border: 0; border-radius: 6px; background: rgba(21, 26, 36, 0.65); color: #fff; font: 14px sans-serif; cursor: pointer; }
+    </style>
+  </head>
+  <body>
+    <canvas id="unity-canvas" tabindex="-1"></canvas>
+    <div id="loading">
+      <div id="title">TEPAGA!</div>
+      <div id="bar"><div id="fill"></div></div>
+      <div id="message">Yuklanmoqda...</div>
+    </div>
+    <button id="fullscreen" type="button" tabindex="-1">To'liq ekran</button>
+    <script>
+      const canvas = document.querySelector("#unity-canvas");
+      const loading = document.querySelector("#loading");
+      const fill = document.querySelector("#fill");
+      const message = document.querySelector("#message");
+      const fullscreen = document.querySelector("#fullscreen");
+
+      // Juda katta (2K, 4K) ekranda videokarta ulgurmaydi: chiziladigan nuqtalar soni Full HD bilan cheklanadi.
+      const maxPixels = 1920 * 1080;
+      const pixelRatio = () =>
+        Math.min(window.devicePixelRatio || 1, Math.sqrt(maxPixels / (window.innerWidth * window.innerHeight)));
+
+      const config = {
+        arguments: [],
+        dataUrl: "Build/{{{ DATA_FILENAME }}}",
+        frameworkUrl: "Build/{{{ FRAMEWORK_FILENAME }}}",
+        codeUrl: "Build/{{{ CODE_FILENAME }}}",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
+        productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
+        productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
+        devicePixelRatio: pixelRatio(),
+      };
+
+      const script = document.createElement("script");
+      script.src = "Build/{{{ LOADER_FILENAME }}}";
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          fill.style.width = 100 * progress + "%";
+        }).then((game) => {
+          loading.style.display = "none";
+          fullscreen.style.display = "block";
+          fullscreen.onclick = () => game.SetFullscreen(1);
+          window.addEventListener("resize", () => { game.Module.devicePixelRatio = pixelRatio(); });
+        }).catch((error) => {
+          message.textContent = "O'yin ochilmadi: " + error;
+        });
+      };
+      script.onerror = () => { message.textContent = "O'yin fayllari yuklanmadi. Sahifani yangilang."; };
+      document.body.appendChild(script);
+    </script>
+  </body>
+</html>
