@@ -20,8 +20,12 @@ namespace OnlyUp
             set => minHeight = value;
         }
 
-        void Awake() => motor = GetComponent<PlayerMotor>();
-        void Start() => spawn = transform.position;
+        void Awake()
+        {
+            motor = GetComponent<PlayerMotor>();
+            // Start'da emas: GameSession saqlangan joyni Start'da yuklaydi va ularning tartibi belgilanmagan.
+            spawn = transform.position;
+        }
 
         void LateUpdate()
         {

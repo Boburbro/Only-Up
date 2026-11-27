@@ -181,6 +181,25 @@ namespace OnlyUp.Tests
         }
 
         [UnityTest]
+        public IEnumerator Davom_etganda_suvga_tushgan_oyinchi_boshidan_boshlaydi()
+        {
+            yield return OpenCourse();
+            Vector3 start = motor.transform.position;
+            yield return StandOn(7);
+            session.Save();
+            Assert.Greater(SaveSystem.Read().position.y, start.y + 4f);
+
+            GameSession.ContinueRequested = true;
+            yield return OpenCourse();
+            Assert.Greater(session.Height, 4f, "Saqlangan joy yuklanmadi");
+
+            motor.Teleport(new Vector3(60f, -10f, -45f));
+            yield return Frames(10);
+            Assert.Less(Vector3.Distance(start, motor.transform.position), 0.5f,
+                "Suvdan saqlangan joyga qaytdi, boshiga emas");
+        }
+
+        [UnityTest]
         public IEnumerator Yangi_oyin_saqlanganni_tasdiqsiz_ochirmaydi()
         {
             SaveSystem.Write(new SaveData { map = GameScenes.Game, position = new Vector3(0f, 5f, 0f), time = 99f });
