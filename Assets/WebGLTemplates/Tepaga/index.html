@@ -13,7 +13,9 @@
       #title { font-size: 48px; font-weight: bold; color: #f28c2b; }
       #bar { width: min(320px, 70vw); height: 10px; border-radius: 5px; background: #323a4d; overflow: hidden; }
       #fill { width: 0; height: 100%; background: #f28c2b; }
-      #message { max-width: 80vw; text-align: center; }
+      #message { max-width: 80vw; text-align: center; font-variant-numeric: tabular-nums; }
+      /* Matn paydo bo'lganda ustidagi chiziq sakramasligi uchun joy oldindan band qilinadi. */
+      #hint { max-width: min(360px, 80vw); min-height: 3em; text-align: center; font-size: 14px; line-height: 1.5; opacity: 0.7; }
       #fullscreen { position: fixed; right: 12px; bottom: 12px; display: none; padding: 8px 12px; border: 0; border-radius: 6px; background: rgba(21, 26, 36, 0.65); color: #fff; font: 14px sans-serif; cursor: pointer; }
       #privacy { position: fixed; right: 112px; bottom: 20px; color: #fff; opacity: 0.7; font: 12px sans-serif; text-shadow: 0 1px 2px #000; }
       /* Yon bannerlar. Balandlik oynaga, eni 160x600 nisbatiga moslashadi. */
@@ -35,7 +37,8 @@
     <div id="loading">
       <div id="title">TEPAGA!</div>
       <div id="bar"><div id="fill"></div></div>
-      <div id="message">Loading...</div>
+      <div id="message">Connecting...</div>
+      <div id="hint"></div>
     </div>
     <button id="fullscreen" type="button" tabindex="-1">Fullscreen</button>
     <script src="banners.js"></script>
@@ -85,21 +88,74 @@
         devicePixelRatio: pixelRatio(),
       };
 
+      const hint = document.querySelector("#hint");
+
+      // Jami yuklanadigan hajm serverdan so'raladi, shunda yangi build'da ham to'g'ri chiqadi.
+      // Aniqlab bo'lmasa 0 qoladi va MB o'rniga foiz ko'rsatiladi.
+      let totalBytes = 0;
+      Promise.all([config.dataUrl, config.frameworkUrl, config.codeUrl].map((url) =>
+        fetch(url, { method: "HEAD" }).then((response) => (response.ok && Number(response.headers.get("content-length"))) || 0)
+      )).then((sizes) => {
+        if (sizes.every((size) => size > 0)) totalBytes = sizes.reduce((sum, size) => sum + size, 0);
+        showDownload();
+      }).catch(() => {});
+
+      // Unity yuklab olishga progressning 0.9 qismini ajratadi (baytlar bo'yicha), qolgani - ochish va ishga tushirish.
+      const downloadShare = 0.9;
+      const slowAfter = 15000;
+      let downloaded = 0;
+      let lastChange = Date.now();
+      let failed = false;
+
+      function showDownload() {
+        if (failed || downloaded <= 0 || downloaded >= 1) return;
+        const megabytes = (bytes) => (bytes / 1e6).toFixed(1);
+        message.textContent = totalBytes
+          ? "Downloading... " + megabytes(downloaded * totalBytes) + " / " + megabytes(totalBytes) + " MB"
+          : "Downloading... " + Math.floor(downloaded * 100) + "%";
+      }
+
+      function onProgress(progress) {
+        fill.style.width = 100 * progress + "%";
+        const fraction = Math.min(progress / downloadShare, 1);
+        if (fraction === downloaded) return;
+        downloaded = fraction;
+        lastChange = Date.now();
+        if (downloaded >= 1) {
+          message.textContent = "Starting the game...";
+          hint.textContent = "Download finished. This can take a while on slower devices.";
+        } else {
+          hint.textContent = "";
+          showDownload();
+        }
+      }
+
+      const slowCheck = setInterval(() => {
+        if (downloaded < 1 && Date.now() - lastChange > slowAfter)
+          hint.textContent = "Your connection seems slow or interrupted. If nothing changes, refresh the page.";
+      }, 1000);
+
+      function showError(text) {
+        failed = true;
+        clearInterval(slowCheck);
+        hint.textContent = "";
+        message.textContent = text;
+      }
+
       const script = document.createElement("script");
       script.src = "Build/{{{ LOADER_FILENAME }}}";
       script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          fill.style.width = 100 * progress + "%";
-        }).then((game) => {
+        createUnityInstance(canvas, config, onProgress).then((game) => {
+          clearInterval(slowCheck);
           loading.style.display = "none";
           fullscreen.style.display = "block";
           fullscreen.onclick = () => game.SetFullscreen(1);
           window.addEventListener("resize", () => { game.Module.devicePixelRatio = pixelRatio(); });
         }).catch((error) => {
-          message.textContent = "The game could not start: " + error;
+          showError("The game could not start: " + error);
         });
       };
-      script.onerror = () => { message.textContent = "Could not load the game files. Please refresh the page."; };
+      script.onerror = () => showError("Could not load the game files. Please refresh the page.");
       document.body.appendChild(script);
     </script>
   </body>
