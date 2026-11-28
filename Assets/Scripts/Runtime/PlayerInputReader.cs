@@ -3,12 +3,18 @@ using UnityEngine.InputSystem;
 
 namespace OnlyUp
 {
-    /// <summary>Klaviatura, sichqoncha va gamepad qiymatlarini o'qib beradi.</summary>
+    /// <summary>Klaviatura, sichqoncha (g'ildirak ham sakratadi) va gamepad qiymatlarini o'qib beradi.</summary>
     [DefaultExecutionOrder(-100)]
     public class PlayerInputReader : MonoBehaviour
     {
         [SerializeField] InputActionAsset actions;
 
+        // G'ildirakni "bosib turib" bo'lmaydi, shuning uchun u bilan sakrash har doim to'liq balandlikda
+        // bo'lsin: sakrash tugmasi eng yuqori nuqtagacha bosib turilgandek hisoblanadi.
+        const float WheelHoldTime = 0.6f;
+
+        float wheelHold;
+        bool wheelPressed;
         InputActionMap map;
         InputAction move, look, jump, sprint;
 
@@ -52,9 +58,9 @@ namespace OnlyUp
             }
         }
 
-        public bool JumpPressed => jump != null && jump.WasPressedThisFrame() ||
+        public bool JumpPressed => jump != null && jump.WasPressedThisFrame() || wheelPressed ||
                                    Touch != null && enabled && Touch.JumpPressed;
-        public bool JumpHeld => jump != null && jump.IsPressed() || Touch != null && enabled && Touch.JumpHeld;
+        public bool JumpHeld => jump != null && jump.IsPressed() || wheelHold > 0f || Touch != null && enabled && Touch.JumpHeld;
         public bool SprintHeld => sprint != null && sprint.IsPressed() ||
                                   Touch != null && enabled && Touch.Sprinting;
 
@@ -69,6 +75,19 @@ namespace OnlyUp
             map.Enable();
         }
 
-        void OnDisable() => map?.Disable();
+        void Update()
+        {
+            // Ikkala tomonga aylantirish ham sakratadi.
+            var mouse = Mouse.current;
+            wheelPressed = mouse != null && mouse.scroll.ReadValue().y != 0f;
+            wheelHold = wheelPressed ? WheelHoldTime : Mathf.Max(0f, wheelHold - Time.deltaTime);
+        }
+
+        void OnDisable()
+        {
+            map?.Disable();
+            wheelPressed = false;
+            wheelHold = 0f;
+        }
     }
 }

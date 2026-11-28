@@ -118,6 +118,46 @@ namespace OnlyUp.Tests
         }
 
         [UnityTest]
+        public IEnumerator Sichqoncha_gildiragi_toliq_balandlikka_sakratadi()
+        {
+            yield return Frames(20);
+            foreach (float notch in new[] { 120f, -120f, 1f, -1f })
+            {
+                Assert.IsTrue(motor.IsGrounded, "Boshida yerda emas");
+                float start = player.transform.position.y;
+
+                // G'ildirakning bitta "tiq"i: qiymat faqat bitta kadr turadi.
+                Set(mouse.scroll, new Vector2(0f, notch));
+                float peak = start;
+                for (int i = 0; i < 90; i++)
+                {
+                    yield return null;
+                    peak = Mathf.Max(peak, player.transform.position.y);
+                }
+
+                Assert.That(peak - start, Is.EqualTo(motor.JumpHeight).Within(0.2f), $"g'ildirak {notch}");
+                Assert.IsTrue(motor.IsGrounded, "Yerga qaytmadi");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator Ochirilgan_boshqaruvda_gildirak_sakratmaydi()
+        {
+            yield return Frames(20);
+            var reader = player.GetComponent<PlayerInputReader>();
+            reader.enabled = false;
+            float start = player.transform.position.y;
+
+            Set(mouse.scroll, new Vector2(0f, 120f));
+            yield return Frames(15);
+            Assert.AreEqual(start, player.transform.position.y, 0.05f, "pauzada sakradi");
+
+            reader.enabled = true;
+            yield return Frames(15);
+            Assert.AreEqual(start, player.transform.position.y, 0.05f, "pauzadan keyin eski aylantirish sakratdi");
+        }
+
+        [UnityTest]
         public IEnumerator Qisqa_bosilsa_pastroq_sakraydi()
         {
             yield return Frames(20);
