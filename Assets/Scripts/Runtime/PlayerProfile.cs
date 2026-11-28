@@ -29,12 +29,12 @@ namespace OnlyUp
         public static string NameError(string name)
         {
             name = Clean(name);
-            if (name.Length == 0) return "Nik kiriting";
-            if (name.Length < MinNameLength) return $"Nik kamida {MinNameLength} ta belgidan iborat bo'lsin";
-            if (name.Length > MaxNameLength) return $"Nik {MaxNameLength} ta belgidan oshmasin";
+            if (name.Length == 0) return "Enter a nickname";
+            if (name.Length < MinNameLength) return $"Use at least {MinNameLength} characters";
+            if (name.Length > MaxNameLength) return $"Use at most {MaxNameLength} characters";
             // '<' va '>' matn formatlash teglariga aylanib ketmasligi uchun harflar cheklanadi.
             if (!name.All(c => char.IsLetterOrDigit(c) || c == ' ' || c == '_' || c == '-' || c == '\''))
-                return "Faqat harf, raqam, bo'sh joy, _ - ' ishlating";
+                return "Use only letters, digits, spaces, _ - '";
             return null;
         }
     }

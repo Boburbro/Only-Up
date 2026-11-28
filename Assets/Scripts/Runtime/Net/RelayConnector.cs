@@ -49,13 +49,13 @@ namespace OnlyUp.Net
                     case RelayExceptionReason.JoinCodeNotFound:
                     case RelayExceptionReason.EntityNotFound:
                     case RelayExceptionReason.InvalidRequest:
-                        return "Bunday kodli xona topilmadi";
+                        return "No room found with this code";
                     case RelayExceptionReason.NetworkError:
-                        return "Internet aloqasini tekshiring";
+                        return "Check your internet connection";
                     case RelayExceptionReason.RateLimited:
-                        return "Juda ko'p urinish. Biroz kuting";
+                        return "Too many attempts. Please wait a moment";
                 }
-            return "Online xizmatga ulanib bo'lmadi";
+            return "Could not reach the online service";
         }
     }
 }

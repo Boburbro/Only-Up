@@ -38,8 +38,10 @@ namespace OnlyUp.UI
             var safe = new GameObject("SafeRoom", typeof(RectTransform), typeof(SafeArea))
                 .GetComponent<RectTransform>();
             safe.SetParent(canvas, false);
-            codeLabel = Corner(safe, new Vector2(-70f, -125f), 38, UiKit.Accent);
-            list = Corner(safe, new Vector2(-70f, -180f), 30, Color.white);
+            // O'ng chetda banner bo'lsa, ro'yxat uning chap tomoniga suriladi.
+            float right = AdBanners.Supported ? -300f : -70f;
+            codeLabel = Corner(safe, new Vector2(right, -125f), 38, UiKit.Accent);
+            list = Corner(safe, new Vector2(right, -180f), 30, Color.white);
         }
 
         static Text Corner(Transform parent, Vector2 position, int size, Color color)
@@ -66,7 +68,7 @@ namespace OnlyUp.UI
             if ((refresh -= Time.unscaledDeltaTime) > 0f) return;
             refresh = 0.25f;
             var room = game.Room;
-            codeLabel.text = $"Xona: {room.Code}  ({room.Players.Count}/{NetRoom.MaxPlayers})";
+            codeLabel.text = $"Room: {room.Code}  ({room.Players.Count}/{NetRoom.MaxPlayers})";
             list.text = Ranking();
         }
 
@@ -80,13 +82,13 @@ namespace OnlyUp.UI
                 room.Poses.TryGetValue(pair.Key, out var pose);
                 float height = mine ? session.Height : pose.Height;
                 float finish = mine ? (session.Finished ? session.PlayTime : 0f) : pose.FinishTime;
-                return (name: pair.Value.Name + (mine ? " (siz)" : ""), height, finish);
+                return (name: pair.Value.Name + (mine ? " (you)" : ""), height, finish);
             });
             return string.Join("\n", rows
                 .OrderBy(r => r.finish > 0f ? r.finish : float.MaxValue)
                 .ThenByDescending(r => r.height)
                 .Select((r, i) => $"{i + 1}. {r.name}  " + (r.finish > 0f
-                    ? $"marra {SaveSystem.FormatTime(r.finish)}"
+                    ? $"finished {SaveSystem.FormatTime(r.finish)}"
                     : SaveSystem.FormatHeight(r.height))));
         }
 

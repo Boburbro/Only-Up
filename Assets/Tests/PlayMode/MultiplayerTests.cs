@@ -91,11 +91,11 @@ namespace OnlyUp.Tests
         static IEnumerator Exchange(bool webSockets, MultiplayerTests t)
         {
             var host = t.Host("Egasi", webSockets);
-            var guest = t.Join("Mehmon Ali", 2, webSockets);
+            var guest = t.Join("Guest Ali", 2, webSockets);
             var third = t.Join("Vali", 1, webSockets);
             yield return Until(() => guest.Ready && third.Ready && guest.Players.Count == 3 &&
                                      third.Players.Count == 3 && host.Players.Count == 3, "Uch o'yinchi ulanmadi");
-            Assert.AreEqual("Mehmon Ali", third.Players[guest.LocalId].Name);
+            Assert.AreEqual("Guest Ali", third.Players[guest.LocalId].Name);
             Assert.AreEqual(2, third.Players[guest.LocalId].Character);
 
             host.SetLocalPose(Pose(1f, 3f));
@@ -145,7 +145,7 @@ namespace OnlyUp.Tests
 
             var extra = Join("Ortiqcha");
             yield return Until(() => extra.Closed, "To'la xona rad etmadi");
-            Assert.AreEqual("Xona to'la", extra.CloseReason);
+            Assert.AreEqual("The room is full", extra.CloseReason);
             Assert.AreEqual(NetRoom.MaxPlayers, host.Players.Count);
         }
 
@@ -215,13 +215,13 @@ namespace OnlyUp.Tests
 
             GameObject.Find("OpenRooms").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
             Assert.IsTrue(menu.Rooms.Root.activeSelf);
-            StringAssert.Contains("nik", menu.Rooms.Status);
+            StringAssert.Contains("nickname", menu.Rooms.Status);
 
             menu.NameInput.text = "Sinovchi";
             menu.Rooms.CodeInput.text = " ab-1 2 ";
             Assert.AreEqual("AB12", menu.Rooms.CodeInput.text);
             GameObject.Find("JoinRoom").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
-            Assert.AreEqual("Kodni to'liq yozing", menu.Rooms.Status);
+            Assert.AreEqual("Enter the full code", menu.Rooms.Status);
 
             GameObject.Find("CloseRooms").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
             Assert.IsFalse(menu.Rooms.Root.activeSelf);

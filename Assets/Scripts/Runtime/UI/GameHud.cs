@@ -34,6 +34,7 @@ namespace OnlyUp.UI
 
         void OnDestroy()
         {
+            AdBanners.Set(AdBanners.Mode.Hidden);
             session.PauseChanged -= OnPauseChanged;
             session.ReachedFinish -= OnFinish;
         }
@@ -42,6 +43,9 @@ namespace OnlyUp.UI
 
         void LateUpdate()
         {
+            // Sozlamalar va g'alaba oynasi keng: banner ularni to'sib qo'ymasin.
+            AdBanners.Set(settings.activeSelf || victory.activeSelf ? AdBanners.Mode.Hidden
+                : session.Paused ? AdBanners.Mode.Clickable : AdBanners.Mode.Visible);
             heightLabel.text = SaveSystem.FormatHeight(session.Height);
             timeLabel.text = SaveSystem.FormatTime(session.PlayTime);
             // Qo'nish ko'rinib olishi uchun g'alaba ekrani biroz kechroq chiqadi.
@@ -74,14 +78,14 @@ namespace OnlyUp.UI
             pauseMenu = shade.gameObject;
             var panel = UiKit.Box(shade, "Window", new Vector2(0.5f, 0.5f), Vector2.zero,
                 new Vector2(720f, 640f), UiKit.Panel);
-            UiKit.Label(panel, session.Multiplayer ? "Menyu" : "Pauza", new Vector2(0f, 240f), new Vector2(600f, 90f), 64);
+            UiKit.Label(panel, session.Multiplayer ? "Menu" : "Paused", new Vector2(0f, 240f), new Vector2(600f, 90f), 64);
             var size = new Vector2(520f, 86f);
-            UiKit.Button(panel, "Resume", "Davom etish", new Vector2(0f, 110f), size,
+            UiKit.Button(panel, "Resume", "Resume", new Vector2(0f, 110f), size,
                 () => session.SetPaused(false), UiKit.Accent);
-            UiKit.Button(panel, "PauseSettings", "Sozlamalar", new Vector2(0f, 0f), size,
+            UiKit.Button(panel, "PauseSettings", "Settings", new Vector2(0f, 0f), size,
                 () => settings.SetActive(true));
             restartButton = UiKit.Button(panel, "Restart", RestartText, new Vector2(0f, -110f), size, Restart);
-            UiKit.Button(panel, "ToMenu", "Bosh menyu", new Vector2(0f, -220f), size, ToMenu);
+            UiKit.Button(panel, "ToMenu", "Main menu", new Vector2(0f, -220f), size, ToMenu);
             pauseMenu.SetActive(false);
 
             BuildVictory(canvas);
@@ -100,20 +104,20 @@ namespace OnlyUp.UI
             victory = shade.gameObject;
             var panel = UiKit.Box(shade, "Window", new Vector2(0.5f, 0.5f), Vector2.zero,
                 new Vector2(860f, 760f), UiKit.Panel);
-            var title = UiKit.Label(panel, "G'ALABA!", new Vector2(0f, 290f), new Vector2(800f, 100f), 80,
+            var title = UiKit.Label(panel, "YOU WIN!", new Vector2(0f, 290f), new Vector2(800f, 100f), 80,
                 UiKit.Accent);
             title.fontStyle = FontStyle.Bold;
             finishLabel = UiKit.Label(panel, "", new Vector2(0f, 105f), new Vector2(780f, 250f), 40);
             finishLabel.lineSpacing = 1.25f;
             var size = new Vector2(560f, 86f);
-            UiKit.Button(panel, "PlayAgain", "Qaytadan o'ynash", new Vector2(0f, -95f), size, () =>
+            UiKit.Button(panel, "PlayAgain", "Play again", new Vector2(0f, -95f), size, () =>
             {
                 victory.SetActive(false);
                 session.Restart();
             }, UiKit.Accent);
-            UiKit.Button(panel, "LookAround", "Atrofni ko'rish", new Vector2(0f, -200f), size,
+            UiKit.Button(panel, "LookAround", "Look around", new Vector2(0f, -200f), size,
                 () => session.SetPaused(false));
-            UiKit.Button(panel, "VictoryMenu", "Bosh menyu", new Vector2(0f, -305f), size, ToMenu);
+            UiKit.Button(panel, "VictoryMenu", "Main menu", new Vector2(0f, -305f), size, ToMenu);
             victory.SetActive(false);
         }
 
@@ -153,9 +157,9 @@ namespace OnlyUp.UI
         {
             finishLabel.text =
                 $"{PlayerProfile.Nickname}\n" +
-                $"Balandlik: {SaveSystem.FormatHeight(session.Height)}\n" +
-                $"Vaqt: {SaveSystem.FormatTime(session.PlayTime)}\n" +
-                $"Eng yaxshi vaqt: {SaveSystem.FormatTime(SaveSystem.BestTime)}";
+                $"Height: {SaveSystem.FormatHeight(session.Height)}\n" +
+                $"Time: {SaveSystem.FormatTime(session.PlayTime)}\n" +
+                $"Best time: {SaveSystem.FormatTime(SaveSystem.BestTime)}";
             victoryPending = true;
             finishTimer = 1.2f;
         }
@@ -166,13 +170,13 @@ namespace OnlyUp.UI
             if (!restartArmed)
             {
                 restartArmed = true;
-                UiKit.SetText(restartButton, "Rostdanmi? Yana bosing");
+                UiKit.SetText(restartButton, "Sure? Press again");
                 return;
             }
             session.Restart();
         }
 
-        string RestartText => session.Multiplayer ? "Boshiga qaytish" : "Qaytadan boshlash";
+        string RestartText => session.Multiplayer ? "Back to start" : "Restart";
 
         void Disarm()
         {

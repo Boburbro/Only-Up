@@ -83,7 +83,7 @@ namespace OnlyUp.Net
             };
             network.OnClientConnectedCallback += OnConnected;
             network.OnClientDisconnectCallback += OnDisconnected;
-            network.OnTransportFailure += () => Close("Tarmoq aloqasi uzildi");
+            network.OnTransportFailure += () => Close("Network connection lost");
         }
 
         // ---------- Ulanish ----------
@@ -135,7 +135,7 @@ namespace OnlyUp.Net
             network.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(Version);
             if (!network.StartHost())
             {
-                Close("Xona ochib bo'lmadi");
+                Close("Could not create the room");
                 return;
             }
             Register();
@@ -149,7 +149,7 @@ namespace OnlyUp.Net
             network.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(Version);
             if (!network.StartClient())
             {
-                Close("Xonaga ulanib bo'lmadi");
+                Close("Could not join the room");
                 return;
             }
             Register();
@@ -160,8 +160,8 @@ namespace OnlyUp.Net
         {
             string version = System.Text.Encoding.ASCII.GetString(request.Payload ?? new byte[0]);
             bool own = request.ClientNetworkId == NetworkManager.ServerClientId;
-            if (!own && version != Version) response.Reason = "O'yin versiyasi mos emas";
-            else if (!own && network.ConnectedClientsIds.Count >= MaxPlayers) response.Reason = "Xona to'la";
+            if (!own && version != Version) response.Reason = "Game version mismatch";
+            else if (!own && network.ConnectedClientsIds.Count >= MaxPlayers) response.Reason = "The room is full";
             else response.Approved = true;
             response.CreatePlayerObject = false;
         }
@@ -201,7 +201,7 @@ namespace OnlyUp.Net
             string reason = network.DisconnectReason;
             // Sababni faqat rad javobi beradi; aks holda xona yopilgan yoki aloqa uzilgan.
             if (string.IsNullOrEmpty(reason) || reason.Contains("Disconnect"))
-                reason = Ready ? "Xona yopildi yoki aloqa uzildi" : "Xonaga ulanib bo'lmadi";
+                reason = Ready ? "The room closed or the connection was lost" : "Could not join the room";
             Close(reason);
         }
 

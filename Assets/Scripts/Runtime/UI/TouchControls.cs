@@ -89,12 +89,12 @@ namespace OnlyUp.UI
 
             var corner = new Vector2(1f, 0f);
             var jump = Circle(safe, "TouchJump", corner, new Vector2(-250f, 250f), 250f, 0.35f);
-            jumpPad = MakeButton(jump, "SAKRA", 46);
+            jumpPad = MakeButton(jump, "JUMP", 46);
             jumpPad.Pressed += _ => jumpQueued = true;
 
             var sprint = Circle(safe, "TouchSprint", corner, new Vector2(-500f, 165f), 170f, 0.3f);
             sprintImage = sprint.GetComponent<Image>();
-            MakeButton(sprint, "YUGUR", 32).Pressed += _ => SetSprint(!Sprinting);
+            MakeButton(sprint, "RUN", 32).Pressed += _ => SetSprint(!Sprinting);
 
             var pause = Circle(safe, "TouchPause", new Vector2(0.5f, 1f), new Vector2(0f, -90f), 110f, 0.3f);
             MakeButton(pause, "II", 46).Pressed += _ => session.SetPaused(true);

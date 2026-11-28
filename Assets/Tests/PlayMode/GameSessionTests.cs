@@ -135,6 +135,27 @@ namespace OnlyUp.Tests
         }
 
         [UnityTest]
+        public IEnumerator Yon_bannerlar_oyin_holatiga_mos()
+        {
+            yield return OpenCourse();
+            Assert.AreEqual(AdBanners.Mode.Visible, AdBanners.Current, "O'yin paytida ko'rinmadi");
+
+            yield return Tap(keyboard.escapeKey);
+            Assert.AreEqual(AdBanners.Mode.Clickable, AdBanners.Current, "Pauzada bosilmaydi");
+
+            Find("PauseSettings").onClick.Invoke();
+            yield return Frames(2);
+            Assert.AreEqual(AdBanners.Mode.Hidden, AdBanners.Current, "Sozlamalarni to'sadi");
+            Find("Close").onClick.Invoke();
+            yield return Frames(2);
+            Assert.AreEqual(AdBanners.Mode.Clickable, AdBanners.Current);
+
+            Find("ToMenu").onClick.Invoke();
+            yield return Frames(10);
+            Assert.AreEqual(AdBanners.Mode.Hidden, AdBanners.Current, "Bosh menyuda qolib ketdi");
+        }
+
+        [UnityTest]
         public IEnumerator Qaytadan_boshlash_ikki_marta_bosilganda_ishlaydi()
         {
             yield return OpenCourse();
@@ -290,21 +311,21 @@ namespace OnlyUp.Tests
             Find("PauseSettings").onClick.Invoke();
             yield return null;
             string Shown(string name) => Find(name).GetComponentInChildren<Text>().text;
-            Assert.AreEqual("Yuqori", Shown("Quality"));
+            Assert.AreEqual("High", Shown("Quality"));
 
             Find("RenderScale").onClick.Invoke();
             Assert.AreEqual(0.85f, pipeline.renderScale, 0.001f);
-            Assert.AreEqual("Maxsus", Shown("Quality"), "Alohida o'zgarish to'plam nomida ko'rinmadi");
+            Assert.AreEqual("Custom", Shown("Quality"), "Alohida o'zgarish to'plam nomida ko'rinmadi");
 
             Find("Quality").onClick.Invoke();
-            Assert.AreEqual("Past", Shown("Quality"));
+            Assert.AreEqual("Low", Shown("Quality"));
             Assert.AreEqual("70%", Shown("RenderScale"));
-            Assert.AreEqual("O'chiq", Shown("Shadows"));
+            Assert.AreEqual("Off", Shown("Shadows"));
             Assert.AreEqual(0.7f, pipeline.renderScale, 0.001f);
             Assert.IsFalse(camera.renderPostProcessing);
 
             Find("Quality").onClick.Invoke();
-            Assert.AreEqual("O'rta", Shown("Quality"));
+            Assert.AreEqual("Medium", Shown("Quality"));
             Assert.IsTrue(camera.renderPostProcessing);
 
             Find("FpsLimit").onClick.Invoke();

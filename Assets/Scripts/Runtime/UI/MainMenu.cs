@@ -75,12 +75,12 @@ namespace OnlyUp.UI
 
             var title = UiKit.Label(panel, "TEPAGA!", new Vector2(0f, 380f), new Vector2(700f, 110f), 90, UiKit.Accent);
             title.fontStyle = FontStyle.Bold;
-            UiKit.Label(panel, "Yiqilmang va eng tepaga chiqing", new Vector2(0f, 300f),
+            UiKit.Label(panel, "Don't fall. Climb to the very top!", new Vector2(0f, 300f),
                 new Vector2(700f, 40f), 28, UiKit.Muted);
 
-            UiKit.Label(panel, "Nikingiz", new Vector2(0f, 215f), new Vector2(620f, 40f), 30, null,
+            UiKit.Label(panel, "Nickname", new Vector2(0f, 215f), new Vector2(620f, 40f), 30, null,
                 TextAnchor.MiddleLeft);
-            nameInput = UiKit.Input(panel, "NameInput", "Masalan: Bobur", new Vector2(0f, 150f),
+            nameInput = UiKit.Input(panel, "NameInput", "e.g. Alex", new Vector2(0f, 150f),
                 new Vector2(620f, 80f), PlayerProfile.MaxNameLength);
             nameInput.onValueChanged.AddListener(_ => Validate());
             nameInput.onSubmit.AddListener(_ =>
@@ -91,7 +91,7 @@ namespace OnlyUp.UI
             errorLabel = UiKit.Label(panel, "", new Vector2(0f, 82f), new Vector2(620f, 44f), 24,
                 new Color(1f, 0.62f, 0.5f), TextAnchor.MiddleLeft);
 
-            UiKit.Label(panel, "Personaj", new Vector2(0f, 25f), new Vector2(620f, 40f), 30, null,
+            UiKit.Label(panel, "Character", new Vector2(0f, 25f), new Vector2(620f, 40f), 30, null,
                 TextAnchor.MiddleLeft);
             UiKit.Button(panel, "Previous", "<", new Vector2(-260f, -45f), new Vector2(100f, 80f),
                 () => Select(index - 1), null, 44);
@@ -101,25 +101,25 @@ namespace OnlyUp.UI
 
             // Saqlangan o'yin bo'lsa, qator ikkiga bo'linadi: Davom etish va Yangi o'yin.
             bool saved = SaveSystem.HasSaveFor(GameScenes.Game);
-            startButton = UiKit.Button(panel, "Start", saved ? "Yangi o'yin" : "Boshlash",
+            startButton = UiKit.Button(panel, "Start", saved ? "New game" : "Start",
                 new Vector2(saved ? 160f : 0f, -185f), new Vector2(saved ? 300f : 620f, 100f), StartGame,
                 saved ? UiKit.Control : UiKit.Accent, saved ? 32 : 44);
             if (saved)
-                continueButton = UiKit.Button(panel, "Continue", "Davom etish", new Vector2(-160f, -185f),
+                continueButton = UiKit.Button(panel, "Continue", "Continue", new Vector2(-160f, -185f),
                     new Vector2(300f, 100f), ContinueGame, UiKit.Accent, 34);
-            UiKit.Button(panel, "OpenRooms", "Do'stlar bilan o'ynash", new Vector2(0f, -300f),
+            UiKit.Button(panel, "OpenRooms", "Play with friends", new Vector2(0f, -300f),
                 new Vector2(620f, 76f), OpenRooms);
-            // Brauzerda "Chiqish" ishlamaydi: sahifa shunchaki yopiladi.
+            // Brauzerda "Quit" ishlamaydi: sahifa shunchaki yopiladi.
             bool canQuit = Application.platform != RuntimePlatform.WebGLPlayer;
-            UiKit.Button(panel, "OpenSettings", "Sozlamalar", new Vector2(canQuit ? -160f : 0f, -392f),
+            UiKit.Button(panel, "OpenSettings", "Settings", new Vector2(canQuit ? -160f : 0f, -392f),
                 new Vector2(canQuit ? 300f : 620f, 76f), () => settings.SetActive(true));
             if (canQuit)
-                UiKit.Button(panel, "Quit", "Chiqish", new Vector2(160f, -392f), new Vector2(300f, 76f), Quit);
+                UiKit.Button(panel, "Quit", "Quit", new Vector2(160f, -392f), new Vector2(300f, 76f), Quit);
 
             if (SaveSystem.BestHeight > 0f)
             {
-                string record = "Rekord: " + SaveSystem.FormatHeight(SaveSystem.BestHeight);
-                if (SaveSystem.BestTime > 0f) record += "   Marra: " + SaveSystem.FormatTime(SaveSystem.BestTime);
+                string record = "Record: " + SaveSystem.FormatHeight(SaveSystem.BestHeight);
+                if (SaveSystem.BestTime > 0f) record += "   Finish: " + SaveSystem.FormatTime(SaveSystem.BestTime);
                 UiKit.Label(panel, record, new Vector2(0f, -455f), new Vector2(700f, 36f), 24, UiKit.Muted);
             }
 
@@ -129,7 +129,7 @@ namespace OnlyUp.UI
             settings.SetActive(false);
 
             loading = UiKit.Stretch(canvas, "Loading", new Color(0.04f, 0.05f, 0.07f, 1f)).gameObject;
-            loadingLabel = UiKit.Label(loading.transform, "Yuklanmoqda...", Vector2.zero,
+            loadingLabel = UiKit.Label(loading.transform, "Loading...", Vector2.zero,
                 new Vector2(900f, 80f), 48);
             loading.SetActive(false);
         }
@@ -141,7 +141,7 @@ namespace OnlyUp.UI
         void OpenRooms()
         {
             string error = PlayerProfile.NameError(nameInput.text);
-            rooms.Show(error == null ? "" : "Avval bosh menyuda nik yozing", false);
+            rooms.Show(error == null ? "" : "Enter a nickname in the main menu first", false);
         }
 
         void CloseRooms()
@@ -157,12 +157,12 @@ namespace OnlyUp.UI
             rooms.Root.SetActive(false);
         }
 
-        void HostRoom() => Connect("Xona ochilmoqda...", (room, info) => room.HostOnlineAsync(info));
+        void HostRoom() => Connect("Creating a room...", (room, info) => room.HostOnlineAsync(info));
 
         void JoinRoom(string code)
         {
-            if (code.Length < 6) rooms.Show("Kodni to'liq yozing", false);
-            else Connect("Xonaga ulanilmoqda...", (room, info) => room.JoinOnlineAsync(code, info));
+            if (code.Length < 6) rooms.Show("Enter the full code", false);
+            else Connect("Joining the room...", (room, info) => room.JoinOnlineAsync(code, info));
         }
 
         async void Connect(string message, System.Func<NetRoom, PlayerInfo, Task> open)
@@ -170,7 +170,7 @@ namespace OnlyUp.UI
             if (starting) return;
             if (PlayerProfile.NameError(nameInput.text) != null)
             {
-                rooms.Show("Avval bosh menyuda nik yozing", false);
+                rooms.Show("Enter a nickname in the main menu first", false);
                 return;
             }
             starting = true;
@@ -200,7 +200,7 @@ namespace OnlyUp.UI
                 yield return null;
             if (pendingRoom != room) yield break;
             if (room.Ready) EnterRoom(room);
-            else Fail(room.Closed ? room.CloseReason : "Xona javob bermadi");
+            else Fail(room.Closed ? room.CloseReason : "The room did not respond");
         }
 
         void Fail(string reason)
@@ -251,7 +251,7 @@ namespace OnlyUp.UI
             if (continueButton != null && !newGameArmed)
             {
                 newGameArmed = true;
-                UiKit.SetText(startButton, "O'chirilsinmi?");
+                UiKit.SetText(startButton, "Erase save?");
                 return;
             }
             SaveSystem.Delete();
@@ -284,7 +284,7 @@ namespace OnlyUp.UI
             var operation = SceneManager.LoadSceneAsync(GameScenes.Game);
             while (!operation.isDone)
             {
-                loadingLabel.text = $"Yuklanmoqda... {Mathf.RoundToInt(operation.progress * 100f)}%";
+                loadingLabel.text = $"Loading... {Mathf.RoundToInt(operation.progress * 100f)}%";
                 yield return null;
             }
         }

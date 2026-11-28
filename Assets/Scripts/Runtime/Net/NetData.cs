@@ -73,7 +73,7 @@ namespace OnlyUp.Net
         {
             reader.ReadValueSafe(out FixedString128Bytes text);
             string name = PlayerProfile.Clean(text.ToString());
-            return PlayerProfile.NameError(name) == null ? name : "Mehmon";
+            return PlayerProfile.NameError(name) == null ? name : "Guest";
         }
     }
 }

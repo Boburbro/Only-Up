@@ -15,37 +15,37 @@ namespace OnlyUp.UI
             var shade = UiKit.Stretch(parent, "Settings", new Color(0f, 0f, 0f, 0.6f));
             var panel = UiKit.Box(shade, "Window", new Vector2(0.5f, 0.5f), Vector2.zero,
                 new Vector2(1760f, 760f), new Color(0.07f, 0.08f, 0.11f, 0.98f));
-            UiKit.Label(panel, "Sozlamalar", new Vector2(0f, 310f), new Vector2(800f, 70f), 52);
-            Heading(panel, "Umumiy", Left);
-            Heading(panel, "Grafika", Right);
+            UiKit.Label(panel, "Settings", new Vector2(0f, 310f), new Vector2(800f, 70f), 52);
+            Heading(panel, "General", Left);
+            Heading(panel, "Graphics", Right);
 
-            // Bitta sozlama o'zgarsa, boshqa tugmalardagi yozuv ham yangilanishi kerak (masalan, "Maxsus").
+            // Bitta sozlama o'zgarsa, boshqa tugmalardagi yozuv ham yangilanishi kerak (masalan, "Custom").
             var refresh = new List<Action>();
 
-            Row(panel, "Kamera sezgirligi", Left, 140f);
+            Row(panel, "Camera sensitivity", Left, 140f);
             UiKit.Slider(panel, "Sensitivity", new Vector2(Left + 190f, 140f), new Vector2(340f, 30f),
                 GameSettings.MinSensitivity, GameSettings.MaxSensitivity, GameSettings.MouseSensitivity,
                 v => GameSettings.MouseSensitivity = v);
-            Row(panel, "Ovoz balandligi", Left, 50f);
+            Row(panel, "Volume", Left, 50f);
             UiKit.Slider(panel, "Volume", new Vector2(Left + 190f, 50f), new Vector2(340f, 30f), 0f, 1f,
                 GameSettings.Volume, v => GameSettings.Volume = v);
-            Row(panel, "Musiqa", Left, -40f);
+            Row(panel, "Music", Left, -40f);
             UiKit.Slider(panel, "Music", new Vector2(Left + 190f, -40f), new Vector2(340f, 30f), 0f, 1f,
                 GameSettings.MusicVolume, v => GameSettings.MusicVolume = v);
-            Choice(panel, refresh, "Invert", "Tepa-pastni teskari qilish", Left, -130f,
-                () => GameSettings.InvertY ? "Ha" : "Yo'q",
+            Choice(panel, refresh, "Invert", "Invert up/down", Left, -130f,
+                () => GameSettings.InvertY ? "Yes" : "No",
                 () => GameSettings.InvertY = !GameSettings.InvertY);
-            Choice(panel, refresh, "ShowFps", "FPS ko'rsatish", Left, -220f,
-                () => GameSettings.ShowFps ? "Ha" : "Yo'q",
+            Choice(panel, refresh, "ShowFps", "Show FPS", Left, -220f,
+                () => GameSettings.ShowFps ? "Yes" : "No",
                 () => GameSettings.ShowFps = !GameSettings.ShowFps);
 
-            Choice(panel, refresh, "Quality", "Sifat", Right, 140f,
+            Choice(panel, refresh, "Quality", "Quality", Right, 140f,
                 () => GameSettings.Preset switch
                 {
-                    GraphicsPreset.Low => "Past",
-                    GraphicsPreset.Medium => "O'rta",
-                    GraphicsPreset.High => "Yuqori",
-                    _ => "Maxsus"
+                    GraphicsPreset.Low => "Low",
+                    GraphicsPreset.Medium => "Medium",
+                    GraphicsPreset.High => "High",
+                    _ => "Custom"
                 },
                 () => GameSettings.Preset = GameSettings.Preset switch
                 {
@@ -53,25 +53,25 @@ namespace OnlyUp.UI
                     GraphicsPreset.Medium => GraphicsPreset.High,
                     _ => GraphicsPreset.Low
                 });
-            Choice(panel, refresh, "RenderScale", "Tiniqlik", Right, 50f,
+            Choice(panel, refresh, "RenderScale", "Resolution", Right, 50f,
                 () => GameSettings.RenderScale + "%",
                 () => GameSettings.RenderScale = Next(GameSettings.RenderScales, GameSettings.RenderScale));
-            Choice(panel, refresh, "Shadows", "Soyalar", Right, -40f,
+            Choice(panel, refresh, "Shadows", "Shadows", Right, -40f,
                 () => GameSettings.Shadows switch
                 {
-                    ShadowQuality.Soft => "Yumshoq",
-                    ShadowQuality.Hard => "Oddiy",
-                    _ => "O'chiq"
+                    ShadowQuality.Soft => "Soft",
+                    ShadowQuality.Hard => "Hard",
+                    _ => "Off"
                 },
                 () => GameSettings.Shadows = (ShadowQuality)(((int)GameSettings.Shadows + 2) % 3));
-            Choice(panel, refresh, "Effects", "Effektlar", Right, -130f,
-                () => GameSettings.Effects ? "Yoqilgan" : "O'chiq",
+            Choice(panel, refresh, "Effects", "Effects", Right, -130f,
+                () => GameSettings.Effects ? "On" : "Off",
                 () => GameSettings.Effects = !GameSettings.Effects);
-            Choice(panel, refresh, "FpsLimit", "FPS chegarasi", Right, -220f,
-                () => GameSettings.FpsLimit == 0 ? "Ekranga mos" : GameSettings.FpsLimit.ToString(),
+            Choice(panel, refresh, "FpsLimit", "FPS limit", Right, -220f,
+                () => GameSettings.FpsLimit == 0 ? "Match screen" : GameSettings.FpsLimit.ToString(),
                 () => GameSettings.FpsLimit = Next(GameSettings.FpsLimits, GameSettings.FpsLimit));
 
-            UiKit.Button(panel, "Close", "Tayyor", new Vector2(0f, -315f), new Vector2(360f, 76f), () =>
+            UiKit.Button(panel, "Close", "Done", new Vector2(0f, -315f), new Vector2(360f, 76f), () =>
             {
                 PlayerPrefs.Save();
                 onClose();

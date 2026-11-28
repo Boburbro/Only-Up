@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html lang="en">
   <head>
     <meta charset="utf-8">
+    <meta name="google-adsense-account" content="ca-pub-4309572988121078">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <title>TEPAGA!</title>
     <style>
@@ -14,17 +15,53 @@
       #fill { width: 0; height: 100%; background: #f28c2b; }
       #message { max-width: 80vw; text-align: center; }
       #fullscreen { position: fixed; right: 12px; bottom: 12px; display: none; padding: 8px 12px; border: 0; border-radius: 6px; background: rgba(21, 26, 36, 0.65); color: #fff; font: 14px sans-serif; cursor: pointer; }
+      #privacy { position: fixed; right: 112px; bottom: 20px; color: #fff; opacity: 0.7; font: 12px sans-serif; text-shadow: 0 1px 2px #000; }
+      /* Yon bannerlar. Balandlik oynaga, eni 160x600 nisbatiga moslashadi. */
+      .ad { position: fixed; top: 21vh; height: min(61vh, 41vw); aspect-ratio: 160 / 600; display: none; align-items: center; justify-content: center; overflow: hidden; border-radius: 8px; background: rgba(21, 26, 36, 0.6); border: 1px solid rgba(255, 255, 255, 0.25); color: #fff; font: bold clamp(10px, 1.3vw, 18px) sans-serif; text-align: center; text-decoration: none; user-select: none; pointer-events: none; }
+      .ad img { width: 100%; height: 100%; object-fit: contain; }
+      #ad-left { left: 2.5vw; }
+      #ad-right { right: 2.5vw; }
+      .ads-on .ad { display: flex; }
+      .ads-clickable .ad[href] { pointer-events: auto; cursor: pointer; }
+      /* Telefonda pastki qismni boshqaruv tugmalari egallaydi. */
+      @media (pointer: coarse) { .ad { top: 22vh; height: min(38vh, 30vw); } }
     </style>
   </head>
   <body>
     <canvas id="unity-canvas" tabindex="-1"></canvas>
+    <a class="ad" id="ad-left" target="_blank" rel="noopener noreferrer" tabindex="-1"></a>
+    <a class="ad" id="ad-right" target="_blank" rel="noopener noreferrer" tabindex="-1"></a>
+    <a id="privacy" href="privacy.html" target="_blank" rel="noopener" tabindex="-1">Privacy Policy</a>
     <div id="loading">
       <div id="title">TEPAGA!</div>
       <div id="bar"><div id="fill"></div></div>
-      <div id="message">Yuklanmoqda...</div>
+      <div id="message">Loading...</div>
     </div>
-    <button id="fullscreen" type="button" tabindex="-1">To'liq ekran</button>
+    <button id="fullscreen" type="button" tabindex="-1">Fullscreen</button>
+    <script src="banners.js"></script>
     <script>
+      // banners.js bo'sh yoki xato bo'lsa ham o'yin ishlayveradi.
+      for (const side of ["left", "right"]) {
+        const box = document.querySelector("#ad-" + side);
+        const ad = (window.TEPAGA_BANNERS || {})[side] || {};
+        const label = ad.text || "YOUR AD HERE";
+        if (ad.image) {
+          const image = new Image();
+          image.alt = label;
+          image.onerror = () => { box.textContent = label; };
+          image.src = ad.image;
+          box.appendChild(image);
+        } else {
+          box.textContent = label;
+        }
+        if (/^https?:\/\//i.test(ad.link || "")) box.href = ad.link;
+      }
+      // O'yin chaqiradi: 0 - yashirin, 1 - ko'rinadi, 2 - bosiladi.
+      window.tepagaAds = (mode) => {
+        document.body.classList.toggle("ads-on", mode > 0);
+        document.body.classList.toggle("ads-clickable", mode === 2);
+      };
+
       const canvas = document.querySelector("#unity-canvas");
       const loading = document.querySelector("#loading");
       const fill = document.querySelector("#fill");
@@ -59,10 +96,10 @@
           fullscreen.onclick = () => game.SetFullscreen(1);
           window.addEventListener("resize", () => { game.Module.devicePixelRatio = pixelRatio(); });
         }).catch((error) => {
-          message.textContent = "O'yin ochilmadi: " + error;
+          message.textContent = "The game could not start: " + error;
         });
       };
-      script.onerror = () => { message.textContent = "O'yin fayllari yuklanmadi. Sahifani yangilang."; };
+      script.onerror = () => { message.textContent = "Could not load the game files. Please refresh the page."; };
       document.body.appendChild(script);
     </script>
   </body>
